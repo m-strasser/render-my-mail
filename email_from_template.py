@@ -6,6 +6,7 @@ import os
 import yaml
 import re
 from flask import Flask
+from flask import render_template
 
 #### SERVER SIDE #################
 # Read the template
@@ -35,13 +36,17 @@ def read_tags_from_template(name):
         os.path.dirname(os.path.abspath(__file__)), name), 'r') as template:
         map(lambda x: tags.extend(regex.findall(x)), template.readlines())
 
+@app.route("/render_email", methods=['POST'])
+def render_email():
+    return render_template('render_email.html', success=False)
+
 @app.route("/", methods=['GET'])
 def show_input_form():
     """
     Displays the input form which allows a user to enter the values of the
     corresponding tags.
     """
-    return render_template('u')
+    return render_template('input_form.html', fields=tags)
 
 def main():
     """
