@@ -2,7 +2,9 @@
 Sets up a simple flask site that allows to render an HTML template and mail it
 to a given e-mail-address.
 """
+import os
 import yaml
+import re
 from flask import Flask
 
 #### SERVER SIDE #################
@@ -18,19 +20,20 @@ from flask import Flask
 ##################################
 
 app = Flask(__name__)
+tags = []
 
-def read_config(path):
+def read_tags_from_template(name):
     """
-    Reads the configuration file from the given path.
-    :param path: The path to the configuration file (a YAML file).
-    :returns: The parsed configuration.
-    :raises IOError: If the file at the given path does not exist.
+    Reads an HTML template and extracts the occurring flask tags.
+    :param name: The name of the template file.
+    :returns: The list of used tags.
     """
-    if not os.path.isfile(path):
-        raise IOError('Could not find config file {}'.format(path))
+    global tags
+    regex = re.compile('{{\s*(\w+)\s*}}')
 
-    with open(path, 'r') as configfile:
-        return yaml.load(configfile)
+    with open('{}/templates/{}'.format(
+        os.path.dirname(os.path.abspath(__file__)), name), 'r') as template:
+        map(lambda x: tags.extend(regex.findall(x)), template.readlines())
 
 @app.route("/", methods=['GET'])
 def show_input_form():
@@ -40,5 +43,20 @@ def show_input_form():
     """
     return render_template('u')
 
-if __name__ == '__main__':
+def main():
+    """
+    Sets up the flask site.
+    """
+    path = '{}/{}.yaml'.format(
+        os.path.dirname(os.path.abspath(__file__)), # The directory of this file
+        __file__.rstrip('.py') # The name of this file without the extension
+    )
+    with open(path, 'r') as configfile:
+        config = yaml.load(configfile)
+
+    read_tags_from_template(config['template'])
+
     app.run()
+
+if __name__ == '__main__':
+    main()
