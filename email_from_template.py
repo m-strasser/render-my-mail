@@ -51,12 +51,15 @@ def show_input_form():
 def render_email():
     if request.method == 'GET':
         return redirect('/')
-    return render_template('render_email.html', success=False)
+    # Just pass those tags that we extracted earlier, you never know
+    return render_template(config['template'],
+           **{k: v for k, v in request.form.iteritems() if k in tags})
 
 def main():
     """
     Sets up the flask site.
     """
+    global config
     path = '{}/{}.yaml'.format(
         os.path.dirname(os.path.abspath(__file__)), # The directory of this file
         __file__.rstrip('.py') # The name of this file without the extension
