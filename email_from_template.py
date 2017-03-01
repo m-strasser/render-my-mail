@@ -107,7 +107,7 @@ def send_mail(to, subject, body_html):
     msg['Subject'] = subject
     msg['From'] = config['address']
     msg['To'] = to
-    msg['Reply-To'] = config.get('reply-to', config['address'])
+    msg.add_header('Reply-To', config['reply-to'])
 
     html = MIMEText(body_html, 'html')
     msg.attach(html)
