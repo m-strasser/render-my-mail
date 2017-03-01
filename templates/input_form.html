@@ -1,6 +1,6 @@
 <html>
   <body>
-    <form name="fields_form" action="{{ url_for('render_email') }}" method="POST">
+    <form name="fields_form" action="{{ url_for('preview_email') }}" method="POST">
       {% for field in fields %}
         <label for="{{ field }}">{{ field }}</label>
         <input name="{{ field }}" type="text"/>
