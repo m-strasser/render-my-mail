@@ -1,12 +1,12 @@
-<html>
-  <body>
-    <form name="fields_form" action="{{ url_for('preview_email') }}" method="POST">
-      {% for field in fields %}
-        <label for="{{ field }}">{{ field }}</label>
-        <input name="{{ field }}" type="text"/>
-        <br/>
-      {% endfor %}
-      <input type="submit" value="Ok">
-    </form>
-  </body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+  <form name="fields_form" action="{{ url_for('preview_email') }}" method="POST">
+    {% for field in fields %}
+      <div class='input-group input-form'>
+        <span class="input-group-addon" id="basic-addon-{{ field }}">{{ field }}</span>
+        <input class="form-control" aria-describedby="basic-addon-{{ field }}" name="{{ field }}" type="text"/>
+      </div>
+    {% endfor %}
+    <input type="submit" value="Ok" class="btn btn-info"/>
+  </form>
+{% endblock %}
