@@ -7,6 +7,9 @@ import yaml
 import re
 from flask import Flask
 from flask import render_template
+from flask import request
+from flask import redirect
+from flask import url_for
 
 #### SERVER SIDE #################
 # Read the template
@@ -36,10 +39,6 @@ def read_tags_from_template(name):
         os.path.dirname(os.path.abspath(__file__)), name), 'r') as template:
         map(lambda x: tags.extend(regex.findall(x)), template.readlines())
 
-@app.route("/render_email", methods=['POST'])
-def render_email():
-    return render_template('render_email.html', success=False)
-
 @app.route("/", methods=['GET'])
 def show_input_form():
     """
@@ -47,6 +46,12 @@ def show_input_form():
     corresponding tags.
     """
     return render_template('input_form.html', fields=tags)
+
+@app.route("/render_email", methods=['GET', 'POST'])
+def render_email():
+    if request.method == 'GET':
+        return redirect('/')
+    return render_template('render_email.html', success=False)
 
 def main():
     """
