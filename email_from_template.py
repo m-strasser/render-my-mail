@@ -1,3 +1,4 @@
+#!/usr/bin/env/ python
 """
 Sets up a simple flask site that allows to render an HTML template and mail it
 to a given e-mail-address.
@@ -6,6 +7,9 @@ import logging
 import os
 import yaml
 import re
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from flask import Flask
 from flask import render_template
 from flask import request
@@ -51,17 +55,65 @@ def inject_email_field(action, method, tmpl, **context):
     pass to it).
     :returns: The rendered template with the injected field.
     """
+    global rendered
     injection = """
-    <form action='""" + action + """' method='""" + method + """'>
+    <form action='""" + action + """' method='""" + method + """' name="gen_form">
         <label for="email" id="gen_email_lbl">Your E-mail address:</label>
         <input type="email" name="email" id="gen_email_field"/>
         <input type="submit" value="Send" id="gen_submit"/>
     </form>
     """
+    global injected_lines
+    injected_lines = len(injection.split('\n'))
+
     rendered = render_template(tmpl, **context).split('\n')
     body_index = next(i for i,x in enumerate(rendered) if '<body>' in x)
     rendered.insert(body_index+1, injection)
-    return '\n'.join(rendered)
+    rendered = '\n'.join(rendered)
+    return rendered
+
+def remove_email_field():
+    """
+    Removes the email field from the template that was injected before with
+    inject_email_field.
+    The global variable rendered is the template which will be used and all
+    changes will be saved to it.
+    :returns: The template without the email field.
+    """
+    global rendered
+    rendered = rendered.split('\n')
+    form_index = next(i for i,x in enumerate(rendered) if 'name="gen_form"' in x)
+    del rendered[form_index-1:form_index+injected_lines-1]
+    rendered = '\n'.join(rendered)
+
+    return rendered
+
+def send_mail(to, subject, body_html):
+    """
+    Sends an email to the specified address.
+    :param to: The e-mail address the e-mail is sent to.
+    :param subject: The subject of the e-mail.
+    :param body_html: The body of the e-mail as HTML.
+    :throws smtplib.SMTPAuthenticationError: If the authentication failed.
+    """
+    smtpserver = smtplib.SMTP(config['host'], config['port'])
+    smtpserver.starttls()
+    try:
+        user = config['user']
+    except KeyError:
+        user = config['address']
+    smtpserver.login(user, config['password'])
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = subject
+    msg['From'] = config['address']
+    msg['To'] = to
+    msg['Reply-To'] = config.get('reply-to', config['address'])
+
+    html = MIMEText(body_html, 'html')
+    msg.attach(html)
+
+    smtpserver.sendmail(config['address'], to, msg.as_string())
+    smtpserver.quit()
 
 @app.route("/", methods=['GET'])
 def show_input_form():
@@ -77,17 +129,22 @@ def preview_email():
         return redirect('/')
 
     # Just pass those tags that we extracted earlier, you never know
-    tmpl = inject_email_field(url_for('render_email'), 'POST',
+    return inject_email_field(url_for('render_email'), 'POST',
             config['template'],
             **{k: v for k, v in request.form.iteritems() if k in tags})
-
-    return tmpl
 
 @app.route("/render_email", methods=['GET', 'POST'])
 def render_email():
     if request.method == 'GET':
         return redirect('/')
-    return render_template('render_email.html', success=False)
+    try:
+        send_mail(request.form['email'], config['subject'], remove_email_field())
+    except smtplib.SMTPException as e:
+        err_msg = str(e) if config.get('debug', False) else None
+        return render_template('render_email.html', success=False, err=err_msg)
+
+    return render_template('render_email.html', success=True)
+
 
 def main():
     """
