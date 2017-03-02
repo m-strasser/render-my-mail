@@ -1,11 +1,16 @@
 {% extends "base.html" %}
+{% block breadcrumbs %}
+<li><a href="/">Enter Values</a></li>
+<li>Preview E-Mail</li>
+<li class="active">Send E-Mail</li>
+{% endblock %}
 {% block content %}
   {% if not success %}
-    <h1 style="color: red;">Rendering of e-mail failed!</h1>
+    <div class="alert alert-danger">Rendering of e-mail failed!</div>
     {% if err %}
     <p>{{ err }}</p>
     {% endif %}
   {% else %}
-    <h1 style="color: green">E-mail sent successfully!</h1>
+    <div class="alert alert-success">E-mail sent successfully!</div>
   {% endif %}
 {% endblock %}

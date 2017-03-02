@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block breadcrumbs %}
+<li><a href="/">Enter Values</a></li>
+<li class="active">Preview E-Mail</li>
+<li>Send E-Mail</li>
+{% endblock %}
+{% block scripts %}
+<link rel="stylesheet" href="{{ url_for('static', filename='input_form.css') }}">
+{% endblock %}
+{% block content %}
+<form action="{{ url_for('render_email') }}" method="POST">
+  <div class="input-group input-form">
+    <span class="input-group-addon" id="basic-addon-email">Your E-Mail Address</span>
+    <input class="form-control" aria-describedby="basic-addon-email" name="email" type="text">
+    <span class="input-group-btn">
+      <input type="submit" value="Send" class="btn btn-info">
+    </span>
+  </div>
+</form>
+{% block email %}{% endblock %}
+{% endblock %}

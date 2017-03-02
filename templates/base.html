@@ -11,17 +11,27 @@
 
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='base.css')}}">
+    {% block scripts %}
+    {% endblock %}
   </head>
   <body>
-    <head>
-      <ol class="breadcrumb">
-      {% block breadcrumbs %}
-      {% endblock %}
-      </ol>
-    </head>
-    <article>
-      {% block content %}
-      {% endblock %}
-    </article>
+    <div class="container">
+      <div class="col"></div>
+      <div class="col-10">
+        <header>
+          <ol class="breadcrumb">
+          {% block breadcrumbs %}
+          {% endblock %}
+          </ol>
+        </header>
+        <article>
+          {% block content %}
+          {% endblock %}
+        </article>
+      </div> <!-- col-10 -->
+      <div class="col"></div>
+    </div> <!-- container -->
   </body>
 </html>
