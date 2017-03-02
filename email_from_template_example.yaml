@@ -1,0 +1,8 @@
+template: example.html
+subject: Your rendered Template
+address: no-reply@mydomain.com
+password: mysupersecretpassword
+host: smtp.mydomain.com
+port: 587
+reply-to: reply-to-me@mydomain.com
+debug: False
