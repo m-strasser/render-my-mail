@@ -25,8 +25,7 @@ debug: False
 
 | Name | Description |
 | ---- | ----------- |
-| Template | The HTML that shall be rendered (an example.html is in the
-repository). |
+| Template | The HTML that shall be rendered (an example.html is in the repository). |
 | Subject | The subject of the e-mail that is sent. |
 | Address | The sender address. |
 | User | *Optional* The username of the sender account. (If not given, the value of *Address* will be used.) |
